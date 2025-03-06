@@ -1,20 +1,28 @@
 name: Sync to Hugging Face hub
+
 on:
   push:
-    branches: [main]
-
-  # to run this workflow manually from the Actions tab
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
-  sync-to-hub:
+  sync:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          lfs: true
-      - name: Push to hub
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push https://binarysameer:$HF_TOKEN@huggingface.co/spaces/binarysameer/Search_Engine_llama main
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Pull latest changes from remote
+      run: git pull origin main
+
+    - name: Push to Hugging Face hub
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      run: |
+        git push git push https://binarysameer:$HF_TOKEN@huggingface.co/spaces/binarysameer/Search_Engine_llama main
