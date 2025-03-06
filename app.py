@@ -6,8 +6,8 @@ from langchain.agents import initialize_agent,AgentType
 from langchain.callbacks import StreamlitCallbackHandler
 import os
 from dotenv import load_dotenv
-
-##
+## Code
+####
 
 ## Arxiv and wikipedia Tools
 arxiv_wrapper=ArxivAPIWrapper(top_k_results=1, doc_content_chars_max=200)
@@ -29,50 +29,25 @@ Try more LangChain 🤝 Streamlit Agent examples at [github.com/langchain-ai/str
 st.sidebar.title("Settings")
 api_key=st.sidebar.text_input("Enter your Groq API Key:",type="password")
 
-'''Speak  - Now what I'm actually going to do, since I also need to make sure that now my entire conversation
- should happen along with the chat history.'''
-
 if "messages" not in st.session_state:
     st.session_state["messages"]=[
         {"role":"assisstant","content":"Hi,I'm a chatbot who can search the web. How can I help you?"}
     ]
 
-'''Then I will go ahead and say for every messages, we will go ahead and traverse it.'''
-
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg['content'])
 
-if prompt:=st.chat_input(placeholder="Type of Question here...¸"):
+if prompt:=st.chat_input(placeholder="What is machine learning?"):
     st.session_state.messages.append({"role":"user","content":prompt})
     st.chat_message("user").write(prompt)
 
     llm=ChatGroq(groq_api_key=api_key,model_name="Llama3-8b-8192",streaming=True)
     tools=[search,arxiv,wiki]
 
-    '''Now I need to convert these tools into an agent so that I will be able to,invoke
-the agent.'''
-
     search_agent=initialize_agent(tools,llm,agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,handling_parsing_errors=True)
-
-    '''The differece between Zero shot and ChatZeroShot It basically lies in how they handle our context and memory, 
-    how they generate prompts for the language model.
-
-See in the case of zero shot, zero shot, uh, react description, they don't rely on the chat history,
-
-It makes a decision based on the current input only, without considering any previous action.
-
-Similarly, on the other hand, if I use Chat zero shot react description, it uses a chat history to
-
-remember the context of the chat and the history of the conversation, and it accepts a certain structure
-
-in the chat history and might raise an error if it does not find it.
-'''
-
 
     with st.chat_message("assistant"):
         st_cb=StreamlitCallbackHandler(st.container(),expand_new_thoughts=False)
-        '''it is doing it is displaying. It is used to display the thoughts and action of an agent in an interactive Streamlit app.'''
         response=search_agent.run(st.session_state.messages,callbacks=[st_cb])
         st.session_state.messages.append({'role':'assistant',"content":response})
         st.write(response)
-
