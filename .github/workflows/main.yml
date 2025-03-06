@@ -25,4 +25,4 @@ jobs:
       env:
         HF_TOKEN: ${{ secrets.HF_TOKEN }}
       run: |
-        git push git push https://binarysameer:$HF_TOKEN@huggingface.co/spaces/binarysameer/Search_Engine_llama main
+        git push https://binarysameer:$HF_TOKEN@huggingface.co/spaces/binarysameer/Search_Engine_llama main
